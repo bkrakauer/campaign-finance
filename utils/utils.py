@@ -15,6 +15,7 @@ def load_indivs(fn):
 	# eliminate rows with missing data for recip or candidate info
 	blanks = (df_inds.ContribID.str.strip() == '') | (df_inds.RecipID.str.strip() == '')
 	df_inds = df_inds[~blanks]
+	df_inds = df_inds[df_inds.RecipID.str[0] == 'N'] # this subsets us to candidates
 	df_inds['Amount'] = df_inds.DateAmt.apply(parse_amt)
 
 	return df_inds
