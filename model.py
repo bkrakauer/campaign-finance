@@ -7,9 +7,10 @@ from sklearn.decomposition import NMF
 import timeit
 
 class CampaignFinModel():
+
 	def __init__(self, year = 2014):
 		self.year = year
-		fn = "data/cands" + str(year - 2000) + ".txt"
+		fn = "../data/cands" + str(year - 2000) + ".txt"
 		self.candsdf = pd.read_csv(fn, header=None, error_bad_lines=False, warn_bad_lines=False)
 
 	def fit(self, df):
@@ -101,13 +102,3 @@ class CampaignFinModel():
 		return self.candsdf[self.candsdf[2] == cand_id][3]
 
 
-
-
-'''
-1. Pick n candidates randomly to be centroids.
-2. Assign each candidate to "nearest" centroid -- 
-    that is, the centroid with the greatest pairwise similarity score 
-3. Pick a new centroid (candidate or point) as the "midpoint" somehowsomehow.
-
-Try NMF, offset by some scalar to get positive values 
-'''

@@ -59,8 +59,8 @@ def parse_cols(infn, outfile = "test.txt"):
 					buffer_.replace("|", "")
 					newline.append(buffer_[1:-1]) # maybe change this instead of top if?
 					buffer_ = ""
-		if len(newline) != 21:
-			print "Warning: line {} has {} entries!".format(i, len(newline))
+		#if len(newline) != 21:
+		#	print "Warning: line {} has {} entries!".format(i, len(newline))
 		outfile.write("|".join(newline) + "\n") 
 		#wait = raw_input()
 	outfile.close()
