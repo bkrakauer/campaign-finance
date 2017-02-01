@@ -3,7 +3,7 @@ import cPickle as pickle
 from collections import Counter
 import sys
 
-def load_indivs(fn, min_contributions = 10):
+def load_indivs(fn):
 	'''
 	input: filename as string (csv)
 	output: dataframe 
@@ -16,11 +16,6 @@ def load_indivs(fn, min_contributions = 10):
 	blanks = (df_inds.ContribID.str.strip() == '') | (df_inds.RecipID.str.strip() == '')
 	df_inds = df_inds[~blanks]
 	df_inds = df_inds[df_inds.RecipID.str[0] == 'N'] # this subsets us to candidates
-	
-	# Subset list to only inlcude donors with enough contributions
-	donor_counter = Counter(df_inds.ContribID)
-	donors = [donor for donor in df_inds.ContribID.unique() if donor_counter[donor] > min_contributions]
-	df_inds = df_inds[df_inds.ContribID.isin(donors)]
 
 	#calcuate "amount" columns.
 	df_inds['Amount'] = df_inds.DateAmt.apply(parse_amt)
@@ -49,19 +44,25 @@ def parse_amt(col, committee = False):
 		print "Warning: couldn't split on", col
 	return amt
 
-def load_from_pickle(fn):
+def subset_by_amt(df, min_contributions):
 	'''
-	input: filename as string
-	output: dataframe
-
-	Loads (cleaned) dataframe as pickle file
+	Subset list to only inlcude donors with enough contributions
 	'''
-	df = pickle.load(open(fn, 'r'))
+	donor_counter = Counter(df.ContribID)
+	donors = [donor for donor in donor_counter.keys() if donor_counter[donor] > min_contributions]
+	df = df[df.ContribID.isin(donors)]
 	return df
+
+def subset_to_winners(df, candlistfn):
+	win_df = pd.read_csv(candlistfn)
+	winners = win_df.ID
+	msk = df.RecipID.isin(winners)
+	return df[msk]
+
 
 if __name__ == "__main__":
 	fn = sys.argv[1]
+	candlistfn = sys.argv[2]
 	df = load_indivs(fn)
-	#df2 = build_donor_matrix(df)
-	#sparse_dm = build_matrix_pt(df)
-	sparse_dm = build_sparse_donor_matrix(df) 
+	df = subset_to_winners(df, candlistfn)
+	
