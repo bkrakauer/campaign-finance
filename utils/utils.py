@@ -22,23 +22,35 @@ def load_indivs(fn):
 
 	return df_inds
 
-def parse_amt(col, committee = False):
+def load_committees(fn):
+	'''
+	input: filename as string (csv)
+	output: dataframe
+	'''
+	colnames = "Year XID ContribID RecipID Amount Date A B C D".split()
+	df_ctes = pd.read_csv(fn, names=colnames, header=None, delimiter=",", error_bad_lines=False)
+	blanks = (df_ctes.ContribID.str.strip() == '') | (df_ctes.RecipID.str.strip() == '')
+	df_ctes = df_ctes[~blanks]
+	df_ctes = df_ctes[df_ctes.RecipID.str[0] == 'N'] # this subsets us to candidates
+
+	#calculate "amount" column
+	#df_ctes['Amount'] = df_ctes.AmtDate.apply(parse_amt, args=(True,))
+	return df_ctes
+
+def parse_amt(col):
 	'''
 	Input: a string (in particular, an entry of the date/amount col)
 	Output: Amount donated as int
 	Splits the string, finds the amount column, and returns it as int
 	(Plus some error handling for bad rows)
 	'''
-	position = 1
-	if committee:
-		position = 0
 	amt = 0
 	if isinstance(col, str):
 		da = col.split(',')
 		try:
-			amt = int(da[position])
+			amt = int(da[1])
 		except ValueError:
-			print "Value error when converting {} to int".format(da[position])
+			print "Value error when converting {} to int".format(da[1])
 			return amt
 	else:
 		print "Warning: couldn't split on", col
@@ -53,11 +65,39 @@ def subset_by_amt(df, min_contributions):
 	df = df[df.ContribID.isin(donors)]
 	return df
 
-def subset_to_winners(df, candlistfn):
-	win_df = pd.read_csv(candlistfn)
-	winners = win_df.ID
+def subset_to_winners(df, winnersdf):
+	'''
+	input: dataframe (contributions)
+		   dataframe (includes winners only)
+    output: dataframe (df subsetted to winners only)
+	'''
+	winners = winnersdf.ID
 	msk = df.RecipID.isin(winners)
 	return df[msk]
+
+def add_ids_to_votes(row, mems):
+	'''
+	Input: Series, row of voting data
+	       Dataframe, member info
+	Output: str, Member ID
+	'''
+	subdf = mems[(mems.LastName == row.LastName) & (mems.State == row.State)]
+	if len(subdf) != 1:
+		#print "falling back on firstnames...", row
+		subdf = subdf[(mems.FirstName == row.FirstName)]
+		return subdf.ID.iloc[0]
+	else:
+		#print "Matched!"
+		return subdf.ID.iloc[0] 
+
+def add_clusters_to_votingdf(membersdf, votingdf):
+	'''
+	Input: Dataframe, dataframe (members list and voting records)
+	Output: Dataframe (voting list with added col for group)
+	'''
+	id_to_cluster = {id_: gr for id_, gr in membersdf.Cluster.iteritems()}
+	votingdf['Cluster'] = votingdf.ID.apply(lambda x: id_to_cluster[x])
+	return votingdf
 
 
 if __name__ == "__main__":

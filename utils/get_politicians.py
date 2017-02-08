@@ -7,7 +7,7 @@ import json
 import pdb
 
 
-headers = {'X-API-Key': '05O3pQPIou8SOJf6U0eyD8KNSq9pk3xv4CdsAEID'}
+headers = {'X-API-Key': ''}
 
 def build_member_list(session, cong, df_wids):
 	'''
@@ -25,7 +25,7 @@ def build_member_list(session, cong, df_wids):
 		state = member['state']
 		party = member['party']
 		#votes_w_party = member['votes_with_party_pct']
-		m_id = get_member_id(fname, lname, df_wids)
+		m_id = get_member_id(fname, lname, state, party, df_wids)
 		pols[i] = [m_id, fname, lname, state, party]
 	df = pd.DataFrame.from_dict(pols, orient="index")
 	df.columns = ["ID", "FirstName", "LastName", "State", "Party"]
@@ -48,19 +48,27 @@ def get_id_df(year):
 	candsdf['SplitName'] = candsdf.Name.apply(lambda x: x.split()[:-1])
 	return candsdf
 
-def get_member_id(fname, lname, df_wids):
+def get_member_id(fname, lname, state, party, df_wids):
 	'''
 	'''
 	msk = df_wids.SplitName.apply(lambda x: fname in x and lname in x)
 	if np.sum(msk) < 1:
 		try:
-			print "{} {} not found; ".format(fname,lname)
+			print "{} {} from {} {} not found; ".format(fname,lname, party, state)
 		except UnicodeEncodeError:
 			print "Unicode Error ...."
 			#print "Error decoding {} {}".format(fname, lname).decode("utf8", errors='ignore')
 		msk = df_wids.SplitName.apply(lambda x: lname in x)
 	try:
-		m_id = df_wids[msk].iloc[0].ID
+		m_df = df_wids[msk]# .iloc[0].ID
+		print m_df
+		print "Enter the index of the entry to select for", fname, lname, state, party
+		indx = raw_input().strip()
+		try:
+			indx = int(indx)
+		except:
+			indx = 0
+		m_id = m_df.iloc[indx].ID
 		return m_id
 	except IndexError:
 		return None
@@ -69,6 +77,7 @@ if __name__ == "__main__":
 	year = sys.argv[1]
 	session = sys.argv[2]
 	cong = sys.argv[3]
+	out_filename = sys.argv[4]
 	cand_df = get_id_df(year)
 	df = build_member_list(session, cong, cand_df)
 	df.to_csv(out_filename, encoding = 'utf-8')
