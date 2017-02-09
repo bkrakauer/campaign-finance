@@ -36,4 +36,4 @@ Propublica
 Federal Election Commission
 
 ## Contact
-mailto:bkrakauer@gmail.com
+bkrakauer@gmail.com
