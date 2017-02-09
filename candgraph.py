@@ -5,7 +5,6 @@ from itertools import combinations
 from collections import Counter, defaultdict
 from scipy import sparse
 import timeit
-import pdb
 
 class CandidateGraph():
 
