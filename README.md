@@ -30,5 +30,10 @@ We can also use facts about centrality to determine the behavior of politicians.
 ## Data Sources
 
 OpenSecrets
+
 Propublica
+
 Federal Election Commission
+
+## Contact
+mailto:bkrakauer@gmail.com
