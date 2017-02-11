@@ -84,16 +84,12 @@ class CampaignFinModel():
 				donor_mat[donor_id_to_indx[row.ContribID], cand_id_to_indx[row.RecipID]] += am
 		print "Built matrix in {} seconds.".format(timeit.default_timer() - start_time)
 		return donor_mat
-
-	def print_cand_name(self, c_id):
-		'''
-		'''
-		subdf = self.candsdf[self.candsdf.ID == c_id]
-		return subdf.iloc[0]
+	
 
 	def print_cand_names(self, c_ids):
 		'''
 		input: candidate ids as list
+		output: dataframe, subsetted to candidate id
 		'''
 		df = pd.DataFrame()
 		for cand in c_ids:
