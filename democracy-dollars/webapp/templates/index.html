@@ -1,0 +1,20 @@
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Democracy Dollars</title>
+</head>
+<body>
+<h2>Welcome to Democracy Dollars!</h2>
+<p>Please select a Senator or Representative (from the 114th congress) below:</p>
+<form action="/show_tsne", method="POST">
+	<label for="politician">Politician: </label>
+	<select name="politician">
+	{% for pol in politicians %}
+		<option value="{{pol}}">{{pol}}</option>
+	{% endfor %}
+	</select>
+	<br>
+	<input type="submit" value="Submit" />
+</form>
+</body>
+</html>
